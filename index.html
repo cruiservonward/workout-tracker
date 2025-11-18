@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="Track your garage workouts">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkdhcmFnZSBXb3Jrb3V0IFRyYWNrZXIiLAogICJzaG9ydF9uYW1lIjogIldvcmtvdXQiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2ZmZmZmZiIsCiAgInRoZW1lX2NvbG9yIjogIiMyNTYzZWIiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnJTIweG1sbnMlM0QnaHR0cCUzQSUyRiUyRnd3dy53My5vcmclMkYyMDAwJTJGc3ZnJyUyMHZpZXdCb3glM0QnMCUyMDAlMjA1MTIlMjA1MTInJTNFJTNDcmVjdCUyMGZpbGwlM0QnJTIzMjU2M2ViJyUyMHdpZHRoJTNEJzUxMicllMjBoZWlnaHQlM0QnNTEyJyUyRiUzRSUzQ3RleHQlMjB4JTNEJzUwJTI1JyUyMHklM0QnNTAlMjUnJTIwZm9udC1zaXplJTNEJzI1MCclMjBmaWxsJTNEJ3doaXRlJyUyMHRleHQtYW5jaG9yJTNEJ21pZGRsZSclMjBkb21pbmFudC1iYXNlbGluZSUzRCdjZW50cmFsJyUzRSVGMCU5RiVBNSU4OSVGMCU5RiVBQSU4MCVDMSU5MyUzQyUyRnRleHQlM0UlM0MlMkZzdmclM0UiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiCiAgICB9CiAgXQp9">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%232563eb' width='512' height='512'/%3E%3Ctext x='50%25' y='50%25' font-size='250' fill='white' text-anchor='middle' dominant-baseline='central'%3E💪🪀ó%3C/text%3E%3C/svg%3E">
+    <title>Garage Workout Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .rep-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .rep-btn {
+            padding: 15px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rep-btn:active {
+            transform: scale(0.95);
+            background: #667eea;
+            color: white;
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .add-btn:active {
+            transform: scale(0.98);
+        }
+
+        .add-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .history-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .history-item .exercise {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .history-item .reps {
+            font-size: 24px;
+            font-weight: 700;
+            color: #764ba2;
+        }
+
+        .history-item .weight {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f59e0b;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .history-item .time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .delete-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .export-btn {
+            width: 100%;
+            padding: 15px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+        }
+
+        .export-btn:active {
+            transform: scale(0.98);
+        }
+
+        .import-btn {
+            width: 100%;
+            padding: 15px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .import-btn:active {
+            transform: scale(0.98);
+        }
+
+        .import-btn input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Workout Tracker</h1>
+            <p>Track your garage gains</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('log')">Log Workout</button>
+            <button class="tab" onclick="switchTab('history')">History</button>
+            <button class="tab" onclick="switchTab('stats')">Stats</button>
+        </div>
+
+        <div id="log-tab" class="tab-content active">
+            <div class="card">
+                <div class="form-group">
+                    <label>Exercise</label>
+                    <select id="exercise">
+                        <option value="">Select exercise...</option>
+                        <option value="Bench Press">Bench Press</option>
+                        <option value="Cable Fly">Cable Fly</option>
+                        <option value="Incline Press">Incline Press</option>
+                        <option value="Cable Rows">Cable Rows</option>
+                        <option value="Cable Curl">Cable Curl</option>
+                        <option value="Tricep Rope Pulldown">Tricep Rope Pulldown</option>
+                        <option value="Tricep Barbell Pulldown">Tricep Barbell Pulldown</option>
+                        <option value="Crunch">Crunch</option>
+                        <option value="Face Pull">Face Pull</option>
+                        <option value="Cable Wide Grip Pull Behind">Cable Wide Grip Pull Behind</option>
+                        <option value="Cable Wide Grip Pull Infront">Cable Wide Grip Pull Infront</option>
+                        <option value="Barbell Curl">Barbell Curl</option>
+                        <option value="Shoulder Barbell Lift">Shoulder Barbell Lift</option>
+                        <option value="Shoulder Cable Pull">Shoulder Cable Pull</option>
+                        <option value="Incline Bike (min)">Incline Bike (min)</option>
+                        <option value="Elliptical (min)">Elliptical (min)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Reps</label>
+                    <div class="rep-buttons">
+                        <button class="rep-btn" onclick="setReps(10)">10</button>
+                        <button class="rep-btn" onclick="setReps(15)">15</button>
+                        <button class="rep-btn" onclick="setReps(20)">20</button>
+                        <button class="rep-btn" onclick="setReps(25)">25</button>
+                        <button class="rep-btn" onclick="setReps(30)">30</button>
+                    </div>
+                    <input type="number" id="reps" placeholder="Or enter custom number" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label>Weight (lbs) - Optional</label>
+                    <input type="number" id="weight" placeholder="Enter weight used" min="0" step="5">
+                </div>
+
+                <button class="add-btn" onclick="logWorkout()">Add Set</button>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">Today's Session</h3>
+                <div id="today-list"></div>
+            </div>
+        </div>
+
+        <div id="history-tab" class="tab-content">
+            <div class="card">
+                <div class="button-group">
+                    <button class="export-btn" onclick="exportData()">📊 Export</button>
+                    <label class="import-btn">
+                        📥 Import
+                        <input type="file" accept=".json,.txt" onchange="handleFileImport(event)">
+                    </label>
+                </div>
+                <h3 style="margin-bottom: 15px;">Workout History</h3>
+                <div id="history-list"></div>
+            </div>
+        </div>
+
+        <div id="stats-tab" class="tab-content">
+            <div class="card">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-workouts">0</div>
+                        <div class="stat-label">Total Sets</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-reps">0</div>
+                        <div class="stat-label">Total Reps</div>
+                    </div>
+                </div>
+                <h3 style="margin-bottom: 15px;">Exercise Breakdown</h3>
+                <div id="exercise-breakdown"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let workouts = [];
+
+        function loadData() {
+            const saved = localStorage.getItem('workouts');
+            if (saved) {
+                workouts = JSON.parse(saved);
+            }
+            updateAllDisplays();
+        }
+
+        function saveData() {
+            localStorage.setItem('workouts', JSON.stringify(workouts));
+        }
+
+        function setReps(num) {
+            document.getElementById('reps').value = num;
+        }
+
+        function logWorkout() {
+            const exercise = document.getElementById('exercise').value;
+            const reps = parseInt(document.getElementById('reps').value);
+            const weight = parseFloat(document.getElementById('weight').value) || null;
+
+            if (!exercise || !reps || reps < 1) {
+                alert('Please select an exercise and enter reps');
+                return;
+            }
+
+            const workout = {
+                id: Date.now(),
+                exercise: exercise,
+                reps: reps,
+                weight: weight,
+                timestamp: new Date().toISOString()
+            };
+
+            workouts.unshift(workout);
+            saveData();
+            updateAllDisplays();
+
+            document.getElementById('reps').value = '';
+            document.getElementById('weight').value = '';
+        }
+
+        function deleteWorkout(id) {
+            workouts = workouts.filter(w => w.id !== id);
+            saveData();
+            updateAllDisplays();
+        }
+
+        function updateAllDisplays() {
+            updateTodayList();
+            updateHistoryList();
+            updateStats();
+        }
+
+        function updateTodayList() {
+            const today = new Date().toDateString();
+            const todayWorkouts = workouts.filter(w => 
+                new Date(w.timestamp).toDateString() === today
+            );
+
+            const list = document.getElementById('today-list');
+            
+            if (todayWorkouts.length === 0) {
+                list.innerHTML = '<div class="empty-state">No sets logged today</div>';
+                return;
+            }
+
+            list.innerHTML = todayWorkouts.map(w => `
+                <div class="history-item">
+                    <div>
+                        <div class="exercise">${w.exercise}</div>
+                        <div class="time">${new Date(w.timestamp).toLocaleTimeString()}</div>
+                    </div>
+                    ${w.weight ? `<div class="weight">${w.weight} lbs</div>` : '<div class="weight">—</div>'}
+                    <div class="reps">${w.reps}</div>
+                    <button class="delete-btn" onclick="deleteWorkout(${w.id})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function updateHistoryList() {
+            const list = document.getElementById('history-list');
+            
+            if (workouts.length === 0) {
+                list.innerHTML = '<div class="empty-state">No workout history yet</div>';
+                return;
+            }
+
+            const grouped = {};
+            workouts.forEach(w => {
+                const date = new Date(w.timestamp).toLocaleDateString();
+                if (!grouped[date]) grouped[date] = [];
+                grouped[date].push(w);
+            });
+
+            list.innerHTML = Object.entries(grouped).map(([date, items]) => `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">${date}</h4>
+                    ${items.map(w => `
+                        <div class="history-item">
+                            <div>
+                                <div class="exercise">${w.exercise}</div>
+                                <div class="time">${new Date(w.timestamp).toLocaleTimeString()}${w.weight ? ` • ${w.weight} lbs` : ''}</div>
+                            </div>
+                            <div class="reps">${w.reps}</div>
+                            <button class="delete-btn" onclick="deleteWorkout(${w.id})">×</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('total-workouts').textContent = workouts.length;
+            document.getElementById('total-reps').textContent = 
+                workouts.reduce((sum, w) => sum + w.reps, 0);
+
+            const breakdown = {};
+            workouts.forEach(w => {
+                if (!breakdown[w.exercise]) {
+                    breakdown[w.exercise] = { count: 0, reps: 0 };
+                }
+                breakdown[w.exercise].count++;
+                breakdown[w.exercise].reps += w.reps;
+            });
+
+            const breakdownEl = document.getElementById('exercise-breakdown');
+            
+            if (Object.keys(breakdown).length === 0) {
+                breakdownEl.innerHTML = '<div class="empty-state">Start logging to see stats</div>';
+                return;
+            }
+
+            breakdownEl.innerHTML = Object.entries(breakdown)
+                .sort((a, b) => b[1].reps - a[1].reps)
+                .map(([exercise, data]) => `
+                    <div class="history-item">
+                        <div>
+                            <div class="exercise">${exercise}</div>
+                            <div class="time">${data.count} sets</div>
+                        </div>
+                        <div class="reps">${data.reps}</div>
+                    </div>
+                `).join('');
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+
+        function exportData() {
+            if (workouts.length === 0) {
+                alert('No workout data to export yet!');
+                return;
+            }
+
+            // Export as JSON for easy import
+            const exportData = {
+                version: 1,
+                exportDate: new Date().toISOString(),
+                workouts: workouts
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `workout-data-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            // Also copy to clipboard
+            navigator.clipboard.writeText(dataStr).then(() => {
+                alert('✅ File downloaded and data copied to clipboard!\n\nYou can:\n• Save the downloaded file as backup\n• Paste into Claude for analysis\n• Use Import button to restore later');
+            }).catch(() => {
+                alert('✅ File downloaded!\n\nData also available in clipboard.');
+            });
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    
+                    // Validate the data structure
+                    if (!imported.workouts || !Array.isArray(imported.workouts)) {
+                        throw new Error('Invalid data format');
+                    }
+
+                    // Ask user if they want to merge or replace
+                    const merge = confirm(
+                        `Found ${imported.workouts.length} workout entries.\n\n` +
+                        `Click OK to MERGE with existing data.\n` +
+                        `Click Cancel to REPLACE all existing data.`
+                    );
+
+                    if (merge) {
+                        // Merge: add imported workouts, avoiding duplicates by ID
+                        const existingIds = new Set(workouts.map(w => w.id));
+                        const newWorkouts = imported.workouts.filter(w => !existingIds.has(w.id));
+                        workouts = [...workouts, ...newWorkouts];
+                        workouts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        alert(`✅ Imported ${newWorkouts.length} new workout entries!`);
+                    } else {
+                        // Replace all data
+                        workouts = imported.workouts;
+                        alert(`✅ Replaced all data with ${workouts.length} imported entries!`);
+                    }
+
+                    saveData();
+                    updateAllDisplays();
+
+                } catch (error) {
+                    alert('❌ Import failed: Invalid data format.\n\nMake sure you selected a valid export file.');
+                }
+            };
+            reader.readAsText(file);
+
+            // Reset file input so the same file can be imported again
+            event.target.value = '';
+        }
+
+        // Install prompt for PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        // Load data on start
+        loadData();
+    </script>
+</body>
+</html>
