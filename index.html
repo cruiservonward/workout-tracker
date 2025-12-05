@@ -308,24 +308,26 @@
                         <option value="Bench Press">Bench Press</option>
                         <option value="Cable Fly">Cable Fly</option>
                         <option value="Incline Press">Incline Press</option>
+                        <option value="Lat Pull Down Behind">Lat Pull Down Behind</option>
+                        <option value="Lat Pull Down Infront">Lat Pull Down Infront</option>                       
                         <option value="Cable Rows">Cable Rows</option>
+                        <option value="Face Pull Down">Face Pull Down</option>
+                        <option value="Crunch">Crunch</option> 
+                        <option value="Barbell Curl">Barbell Curl</option>
                         <option value="Cable Curl">Cable Curl</option>
                         <option value="Tricep Rope Pulldown">Tricep Rope Pulldown</option>
                         <option value="Tricep Barbell Pulldown">Tricep Barbell Pulldown</option>
-                        <option value="Crunch">Crunch</option>
-                        <option value="Face Pull">Face Pull</option>
-                        <option value="Cable Wide Grip Pull Behind">Cable Wide Grip Pull Behind</option>
-                        <option value="Cable Wide Grip Pull Infront">Cable Wide Grip Pull Infront</option>
-                        <option value="Barbell Curl">Barbell Curl</option>
                         <option value="Shoulder Barbell Lift">Shoulder Barbell Lift</option>
                         <option value="Shoulder Cable Pull">Shoulder Cable Pull</option>
+                        <option value="Leg Extension">Leg Extension</option>
+                        <option value="Calves">Calves</option>
                         <option value="Incline Bike (min)">Incline Bike (min)</option>
                         <option value="Elliptical (min)">Elliptical (min)</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Reps</label>
+                    <label>Reps or Minutes</label>
                     <div class="rep-buttons">
                         <button class="rep-btn" onclick="setReps(10)">10</button>
                         <button class="rep-btn" onclick="setReps(15)">15</button>
@@ -333,12 +335,22 @@
                         <button class="rep-btn" onclick="setReps(25)">25</button>
                         <button class="rep-btn" onclick="setReps(30)">30</button>
                     </div>
-                    <input type="number" id="reps" placeholder="Or enter custom number" min="1">
+                    <input type="number" id="reps" placeholder="Or enter custom number" min="1" inputmode="numeric" pattern="[0-9]*">
                 </div>
 
                 <div class="form-group">
-                    <label>Weight (lbs) - Optional</label>
-                    <input type="number" id="weight" placeholder="Enter weight used" min="0" step="5">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="margin-bottom: 0;">Weight - Optional</label>
+                        <div style="display: flex; gap: 15px;">
+                            <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer;">
+                                <input type="radio" name="weight-unit" value="lbs" checked onchange="updateWeightUnit()"> Lbs
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer;">
+                                <input type="radio" name="weight-unit" value="plates" onchange="updateWeightUnit()"> Plates
+                            </label>
+                        </div>
+                    </div>
+                    <input type="number" id="weight" placeholder="Enter weight used" min="0" step="5" inputmode="decimal">
                 </div>
 
                 <button class="add-btn" onclick="logWorkout()">Add Set</button>
@@ -384,17 +396,30 @@
 
     <script>
         let workouts = [];
+        let weightUnit = 'lbs';
 
         function loadData() {
             const saved = localStorage.getItem('workouts');
             if (saved) {
                 workouts = JSON.parse(saved);
             }
+            const savedUnit = localStorage.getItem('weightUnit');
+            if (savedUnit) {
+                weightUnit = savedUnit;
+                document.querySelector(`input[name="weight-unit"][value="${weightUnit}"]`).checked = true;
+            }
             updateAllDisplays();
         }
 
         function saveData() {
             localStorage.setItem('workouts', JSON.stringify(workouts));
+            localStorage.setItem('weightUnit', weightUnit);
+        }
+
+        function updateWeightUnit() {
+            weightUnit = document.querySelector('input[name="weight-unit"]:checked').value;
+            localStorage.setItem('weightUnit', weightUnit);
+            updateAllDisplays();
         }
 
         function setReps(num) {
@@ -405,6 +430,7 @@
             const exercise = document.getElementById('exercise').value;
             const reps = parseInt(document.getElementById('reps').value);
             const weight = parseFloat(document.getElementById('weight').value) || null;
+            const unit = document.querySelector('input[name="weight-unit"]:checked').value;
 
             if (!exercise || !reps || reps < 1) {
                 alert('Please select an exercise and enter reps');
@@ -416,6 +442,7 @@
                 exercise: exercise,
                 reps: reps,
                 weight: weight,
+                unit: unit,
                 timestamp: new Date().toISOString()
             };
 
@@ -458,7 +485,7 @@
                         <div class="exercise">${w.exercise}</div>
                         <div class="time">${new Date(w.timestamp).toLocaleTimeString()}</div>
                     </div>
-                    ${w.weight ? `<div class="weight">${w.weight} lbs</div>` : '<div class="weight">—</div>'}
+                    ${w.weight ? `<div class="weight">${w.weight} ${w.unit || 'lbs'}</div>` : '<div class="weight">—</div>'}
                     <div class="reps">${w.reps}</div>
                     <button class="delete-btn" onclick="deleteWorkout(${w.id})">×</button>
                 </div>
@@ -487,7 +514,7 @@
                         <div class="history-item">
                             <div>
                                 <div class="exercise">${w.exercise}</div>
-                                <div class="time">${new Date(w.timestamp).toLocaleTimeString()}${w.weight ? ` • ${w.weight} lbs` : ''}</div>
+                                <div class="time">${new Date(w.timestamp).toLocaleTimeString()}${w.weight ? ` • ${w.weight} ${w.unit || 'lbs'}` : ''}</div>
                             </div>
                             <div class="reps">${w.reps}</div>
                             <button class="delete-btn" onclick="deleteWorkout(${w.id})">×</button>
@@ -547,9 +574,10 @@
 
             // Export as JSON for easy import
             const exportData = {
-                version: 1,
+                version: 2,
                 exportDate: new Date().toISOString(),
-                workouts: workouts
+                workouts: workouts,
+                weightUnit: weightUnit
             };
 
             const dataStr = JSON.stringify(exportData, null, 2);
@@ -601,6 +629,12 @@
                         // Replace all data
                         workouts = imported.workouts;
                         alert(`✅ Replaced all data with ${workouts.length} imported entries!`);
+                    }
+
+                    // Import weight unit preference if available
+                    if (imported.weightUnit) {
+                        weightUnit = imported.weightUnit;
+                        document.querySelector(`input[name="weight-unit"][value="${weightUnit}"]`).checked = true;
                     }
 
                     saveData();
