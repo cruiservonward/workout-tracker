@@ -340,7 +340,6 @@
 
                 <div class="form-group">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <label style="margin-bottom: 0;">Weight - Optional</label>
                         <div style="display: flex; gap: 20px; align-items: center;">
                             <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; white-space: nowrap;">
                                 <input type="radio" name="weight-unit" value="lbs" checked onchange="updateWeightUnit()" style="margin: 0;"> 
@@ -352,7 +351,7 @@
                             </label>
                         </div>
                     </div>
-                    <input type="number" id="weight" placeholder="Enter weight used" min="0" step="5" inputmode="decimal">
+                    <input type="number" id="weight" placeholder="Enter weight (optional)" min="0" step="5" inputmode="decimal">
                 </div>
 
                 <button class="add-btn" onclick="logWorkout()">Add Set</button>
