@@ -67,6 +67,39 @@
             transition: border-color 0.3s;
         }
 
+        input[type="radio"] {
+            width: auto;
+            margin: 0;
+            padding: 0;
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        input[type="radio"]:checked {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: white;
+        }
+
         select:focus, input:focus {
             outline: none;
             border-color: #667eea;
@@ -339,17 +372,15 @@
                 </div>
 
                 <div class="form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="display: flex; gap: 80px; align-items: center;">
-                            <label style="display: flex; align-items: center; gap: 0px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                                <input type="radio" name="weight-unit" value="lbs" checked onchange="updateWeightUnit()" style="margin: 0;"> 
-                                <span>Lbs</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                                <input type="radio" name="weight-unit" value="plates" onchange="updateWeightUnit()" style="margin: 0;"> 
-                                <span>Plates</span>
-                            </label>
-                        </div>
+                    <div style="display: flex; gap: 20px; margin-bottom: 8px;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; white-space: nowrap;">
+                            <input type="radio" name="weight-unit" value="lbs" checked onchange="updateWeightUnit()">
+                            <span>Lbs</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; white-space: nowrap;">
+                            <input type="radio" name="weight-unit" value="plates" onchange="updateWeightUnit()">
+                            <span>Plates</span>
+                        </label>
                     </div>
                     <input type="number" id="weight" placeholder="Enter weight (optional)" min="0" step="5" inputmode="decimal">
                 </div>
