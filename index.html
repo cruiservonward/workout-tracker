@@ -317,6 +317,104 @@
             font-size: 14px;
             opacity: 0.9;
         }
+
+        .add-exercise-btn {
+            width: 100%;
+            padding: 12px;
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+
+        .add-exercise-btn:active {
+            transform: scale(0.98);
+        }
+
+        .manage-exercises-btn {
+            width: 100%;
+            padding: 12px;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+
+        .manage-exercises-btn:active {
+            transform: scale(0.98);
+        }
+
+        .exercise-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .remove-exercise-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
     </style>
 </head>
 <body>
@@ -338,24 +436,6 @@
                     <label>Exercise</label>
                     <select id="exercise">
                         <option value="">Select exercise...</option>
-                        <option value="Bench Press">Bench Press</option>
-                        <option value="Cable Fly">Cable Fly</option>
-                        <option value="Incline Press">Incline Press</option>
-                        <option value="Lat Pull Down Behind">Lat Pull Down Behind</option>
-                        <option value="Lat Pull Down Infront">Lat Pull Down Infront</option>                       
-                        <option value="Cable Rows">Cable Rows</option>
-                        <option value="Face Pull Down">Face Pull Down</option>
-                        <option value="Crunch">Crunch</option> 
-                        <option value="Barbell Curl">Barbell Curl</option>
-                        <option value="Cable Curl">Cable Curl</option>
-                        <option value="Tricep Rope Pulldown">Tricep Rope Pulldown</option>
-                        <option value="Tricep Barbell Pulldown">Tricep Barbell Pulldown</option>
-                        <option value="Shoulder Barbell Lift">Shoulder Barbell Lift</option>
-                        <option value="Shoulder Cable Pull">Shoulder Cable Pull</option>
-                        <option value="Leg Extension">Leg Extension</option>
-                        <option value="Calves">Calves</option>
-                        <option value="Incline Bike (min)">Incline Bike (min)</option>
-                        <option value="Elliptical (min)">Elliptical (min)</option>
                     </select>
                 </div>
 
@@ -424,11 +504,49 @@
                 <div id="exercise-breakdown"></div>
             </div>
         </div>
+
+        <!-- Exercise Management Section -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Exercise Management</h3>
+            <button class="add-exercise-btn" onclick="showAddExercisePrompt()">+ Add New Exercise</button>
+            <button class="manage-exercises-btn" onclick="showManageExercises()">Manage Exercises</button>
+        </div>
+    </div>
+
+    <!-- Manage Exercises Modal -->
+    <div id="manage-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Manage Exercises</h3>
+                <button class="close-modal" onclick="closeManageExercises()">×</button>
+            </div>
+            <div id="exercise-list"></div>
+        </div>
     </div>
 
     <script>
         let workouts = [];
         let weightUnit = 'lbs';
+        let exercises = [
+            'Bench Press',
+            'Cable Fly',
+            'Incline Press',
+            'Lat Pull Down Behind',
+            'Lat Pull Down Infront',
+            'Cable Rows',
+            'Face Pull Down',
+            'Crunch',
+            'Barbell Curl',
+            'Cable Curl',
+            'Tricep Rope Pulldown',
+            'Tricep Barbell Pulldown',
+            'Shoulder Barbell Lift',
+            'Shoulder Cable Pull',
+            'Leg Extension',
+            'Calves',
+            'Incline Bike (min)',
+            'Elliptical (min)'
+        ];
 
         function loadData() {
             const saved = localStorage.getItem('workouts');
@@ -440,12 +558,77 @@
                 weightUnit = savedUnit;
                 document.querySelector(`input[name="weight-unit"][value="${weightUnit}"]`).checked = true;
             }
+            const savedExercises = localStorage.getItem('exercises');
+            if (savedExercises) {
+                exercises = JSON.parse(savedExercises);
+            }
+            updateExerciseDropdown();
             updateAllDisplays();
         }
 
         function saveData() {
             localStorage.setItem('workouts', JSON.stringify(workouts));
             localStorage.setItem('weightUnit', weightUnit);
+            localStorage.setItem('exercises', JSON.stringify(exercises));
+        }
+
+        function updateExerciseDropdown() {
+            const select = document.getElementById('exercise');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Select exercise...</option>';
+            exercises.forEach(ex => {
+                const option = document.createElement('option');
+                option.value = ex;
+                option.textContent = ex;
+                select.appendChild(option);
+            });
+            if (currentValue && exercises.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function showAddExercisePrompt() {
+            const name = prompt('Enter new exercise name:');
+            if (name && name.trim()) {
+                const trimmedName = name.trim();
+                if (exercises.includes(trimmedName)) {
+                    alert('This exercise already exists!');
+                    return;
+                }
+                exercises.push(trimmedName);
+                exercises.sort();
+                saveData();
+                updateExerciseDropdown();
+                document.getElementById('exercise').value = trimmedName;
+                alert(`✅ Added "${trimmedName}" to your exercise list!`);
+            }
+        }
+
+        function showManageExercises() {
+            const modal = document.getElementById('manage-modal');
+            const list = document.getElementById('exercise-list');
+            
+            list.innerHTML = exercises.map(ex => `
+                <div class="exercise-list-item">
+                    <span>${ex}</span>
+                    <button class="remove-exercise-btn" onclick="removeExercise('${ex.replace(/'/g, "\\'")}')">Remove</button>
+                </div>
+            `).join('');
+            
+            modal.classList.add('active');
+        }
+
+        function closeManageExercises() {
+            document.getElementById('manage-modal').classList.remove('active');
+        }
+
+        function removeExercise(name) {
+            if (confirm(`Remove "${name}" from your exercise list?`)) {
+                exercises = exercises.filter(ex => ex !== name);
+                saveData();
+                updateExerciseDropdown();
+                showManageExercises();
+            }
         }
 
         function updateWeightUnit() {
